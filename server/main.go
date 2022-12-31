@@ -41,16 +41,22 @@ func main() {
 	payementService := payement.NewService(payementRepository)
 
 
+	productRepository := product.NewProductRepository(db)
+	productService := product.NewService(productRepository)
+
+
 	// get the broadcaster
 	b := broadcast.NewBroadcaster(20)
 	
-	ginAdapter := adapter.NewGinAdapter(b, payementService)
+	ginAdapter := adapter.NewGinAdapter(b, productService, payementService)
 
 	router.GET("/stream", ginAdapter.Stream)
-	router.GET("/testPost", ginAdapter.Submit)
-	router.POST("/testPayement", ginAdapter.CreatePayement)
-	// router.DELETE("/room/:roomid", adapter.DeleteRoom)
-	// router.GET("/stream/:roomid", adapter.Stream)
+	router.POST("/createPayement", ginAdapter.CreatePayement)
+
+	router.POST("/createProduct", ginAdapter.CreateProduct)
+	router.PUT("/updateProduct/:id", ginAdapter.UpdateProduct)
+	router.DELETE("/deleteProduct/:id", ginAdapter.DeleteProduct)
+	router.GET("/getProduct/:id", ginAdapter.GetProduct)
 
 	router.Run(fmt.Sprintf(":%v", 8084))
 

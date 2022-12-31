@@ -4,32 +4,96 @@ import (
 	"gorm.io/gorm"
 )	
 
-type ProductRepository struct {
+type Repository interface {
+	GetAll() ([]Product, error)
+	GetById(id int) (Product, error)
+	GetByName(name string) (Product, error)
+	Create(product Product) Product
+	Update(id int, product Product) (Product, error)
+	Delete(id int) error
+}
+
+type repository struct {
 	db *gorm.DB
 }
 
-func NewProductRepository(db *gorm.DB) *ProductRepository {
-	return &ProductRepository{db}
+func NewProductRepository(db *gorm.DB) *repository {
+	return &repository{db}
 }
 
-func (pr *ProductRepository) GetAll() []Product {
+func (pr *repository) GetAll() ([]Product, error) {
 	var products []Product
-	pr.db.Find(&products)
-	return products
+	
+	err:= pr.db.Find(&products).Error
+
+	if err != nil {
+		return products, err
+	}
+
+	return products, nil
 }
 
-func (pr *ProductRepository) GetById(id int) Product {
+func (pr *repository) GetById(id int) (Product, error) {
 	var product Product
-	pr.db.First(&product, id)
-	return product
+	err := pr.db.Where(&Product{Id: id}).First(&product).Error
+
+	if err != nil {
+		return Product{}, err
+	}
+
+	return product, nil
 }
 
-func (pr *ProductRepository) Create(product Product) Product {
+
+func (pr *repository) GetByName(name string) (Product, error) {
+	var product Product
+	err := pr.db.Where(&Product{Name: name}).First(&product).Error
+
+	if err != nil {
+		return Product{}, err
+	}
+
+	return product, nil
+}
+
+
+func (pr *repository) Create(product Product) Product {
 	pr.db.Create(&product)
 	return product
 }
 
-func (pr *ProductRepository) Update(product Product) Product {
+func (pr *repository) Update(id int, inputProduct Product) (Product, error) {
+
+
+	product, err := pr.GetById(id)
+
+	if err != nil {
+		return Product{}, err
+	}
+
+	product.Name = inputProduct.Name
+	product.Price = inputProduct.Price
+
 	pr.db.Save(&product)
-	return product
+
+	return product, nil
+}
+
+
+func (pr *repository) Delete(id int) error {
+	
+	product := Product{Id: id}
+
+	transaction := pr.db.Delete(&product)
+
+	if transaction.Error != nil {
+		return transaction.Error
+	}
+
+
+	if transaction.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
