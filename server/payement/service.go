@@ -1,62 +1,99 @@
 package payement
 
-import "time"
+import (
+    "github.com/lailacha/go-MarketAPI_esgi/server/product"
+)
 
 type Service interface {
-	// FindAll() ([]Payement, error)
-	// FindById(id int) (Payement, error)
-	Create(productId int, price string) (Payement, error)
-	// Update(payement Payement) (Payement, error)
-	// Delete(id int) error
-	// Stream() (Payement, error)
+    FindAll() ([]Payement, error)
+	FindById(id int) (Payement, error)
+    Get(id int) (Payement, error)
+    Create(inputProduct product.Product) (Payement, error)
+    Update(id int, payement Payement) (Payement, error)
+    Delete(id int) error
+    // Stream() (Payement, error)
 }
 
 type service struct {
-	repo Repository
+    repo Repository
 }
 
 func NewService(repo Repository) *service {
-	return &service{repo}
+    return &service{repo}
 }
 
-func (s *service) Create(productId int, price string ) (Payement, error) {
+func (s *service) Create(inputProduct product.Product) (Payement, error) {
 
-	//WORK IN PROGRESS but insert in db works
-	payementObject := Payement{
-		ProductID: productId,
-		PricePaid: price,
-		CreatedAt: time.Now().Format("2006-01-02"),
-		UpdatedAt: time.Now().Format("2006-01-02"),
+    payementObject := Payement{
+        ProductID: inputProduct.Id,
+        PricePaid: inputProduct.Price,
+    }
+    
+    s.repo.Create(payementObject)
+    
+    
+    return payementObject, nil
+}
+
+func (s *service) Get(id int) (Payement, error) {
+    
+    payement, err := s.repo.FindById(id)
+
+    if err != nil {
+        return Payement{}, err
+    }
+
+    return payement, nil
+}
+
+
+func (s *service) Update(id int, inputPayement Payement) (Payement, error) {
+
+
+    updatedPayement, err := s.repo.Update(id, inputPayement)
+
+    if err != nil {
+        return Payement{}, err
+    }
+
+    return updatedPayement, nil
+
+}
+
+func (s *service) FindAll() ([]Payement, error) {
+
+	findallpayement, err := s.repo.FindAll()
+
+	if err != nil {
+		return findallpayement, err
 	}
-	
-	s.repo.Create(payementObject)
-	
-	
-	return payementObject, nil
+
+	return findallpayement, nil
 }
 
-// func (s *service) FindAll() ([]Payement, error) {
-// 	//return s.repo.FindAll()
-// }
 
+func (s *service) FindById(id int) (Payement, error) {
 
-// func (s *service) FindById(id int) (Payement, error) {
-// 	//return s.repo.FindById(id)
-// }
+	findpayement, err := s.repo.FindById(id)
 
-// func (s *service) Create(payement Payement) (Payement, error) {
-// 	//return s.repo.Create(payement)
-// }
+	if err != nil {
+		return findpayement, err
+	}
 
+	return findpayement, nil
+}
 
-// func (s *service) Update(payement Payement) (Payement, error) {
-// 	//return s.repo.Update(payement)
-// }
+func (s *service) Delete(id int) error {
+    
+	err := s.repo.Delete(id)
 
-// func (s *service) Delete(id int) error {
-// 	//return s.repo.Delete(id)
-// }
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // func (s *service) Stream() (Payement, error) {
-// 	//return s.repo.Stream()
-// }
+//     //return s.repo.Stream()
+// } 

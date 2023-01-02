@@ -16,6 +16,7 @@ type GinAdapter interface {
 	Stream(c *gin.Context)
 
 	CreatePayement(c *gin.Context)
+	GetPayement(c *gin.Context)
 
 	UpdateProduct(c *gin.Context)
 	CreateProduct(c *gin.Context)
@@ -89,44 +90,119 @@ func (adapter *ginAdapter) Stream(c *gin.Context) {
 
 func (adapter *ginAdapter) CreatePayement (c *gin.Context) {
 	
-	//get POST data
+	
+	productId, err := strconv.Atoi(c.PostForm("productId"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "invalid product id",
+		})
+		return
+	}
+
+	// get the product 
+
+	product, err := adapter.productService.Get(productId)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	payement, err := adapter.payementService.Create(product)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	 c.JSON(http.StatusOK, &Response{
+		Status:  http.StatusOK,
+		Message: "Payement is created",
+		Data: payement,
+	})
+
+}
+
+func (adapter *ginAdapter) GetPayement (c *gin.Context) {
+	
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "invalid id",
+		})
+		return
+	}
+
+	payement, err := adapter.payementService.Get(id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	 c.JSON(http.StatusOK, &Response{
+		Status:  http.StatusOK,
+		Message: "Payement is created",
+		Data: payement,
+	})
+
+}
+
+func (adapter *ginAdapter) UpdatePayement(c *gin.Context) {
 
 
-	fmt.Println("create payement", c.PostForm("id"))
-
-	id, err := strconv.Atoi(c.PostForm("id"))
+	id, err := strconv.Atoi(c.Param("id"))
 
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
-		fmt.Println(err)
-		return
-	}
-		price := c.PostForm("price")
-
-
-		// get the broadcaster
-		b := adapter.broadcaster
-
-		// save the payement
-		adapter.payementService.Create(id, price);
-
-
-		b.Submit(Message{
-			UserId: "1",
-			Text: "Payement is created",
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "invalid id",
 		})
-
-		response := &Response{
-			Status:  http.StatusOK,
-			Message: "Payement is created",
-			Data: nil,
+		return
 		}
 
-		c.JSON(http.StatusOK, response)
-	
+	var payement payement.Payement
 
+	err = c.ShouldBindJSON(&payement)
+
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "invalid payement",
+		})
+		return
+	}
+
+	payement, err = adapter.payementService.Update(id, payement)
+
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+	
+	
 }
+
+
 
 func (adapter *ginAdapter) CreateProduct (c *gin.Context) {
 	
