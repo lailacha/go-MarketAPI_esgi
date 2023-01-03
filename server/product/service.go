@@ -4,7 +4,7 @@ import "fmt"
 
 // on définit notre interface
 type Service interface {
-	//FindAll() ([]Product, error)
+	// FindAll() ([]Product, error)
 	Get(id int) (Product, error)
 	Create(name string, price string) (Product, error)
 	Update(id int, product Product) (Product, error)
@@ -88,3 +88,14 @@ func (s *service) Delete(id int) error {
 	return nil
 
 }
+
+// func (s *service) FindAll() ([]Product, error) {
+
+// 	products, err := s.repo.FindAll()
+
+// 	if err != nil {
+// 		return products, err
+// 	}
+
+// 	return products, nil
+// }

@@ -16,6 +16,7 @@ type GinAdapter interface {
 	Stream(c *gin.Context)
 
 	CreatePayement(c *gin.Context)
+	GetPayement(c *gin.Context)
 
 	UpdateProduct(c *gin.Context)
 	CreateProduct(c *gin.Context)
@@ -89,44 +90,182 @@ func (adapter *ginAdapter) Stream(c *gin.Context) {
 
 func (adapter *ginAdapter) CreatePayement (c *gin.Context) {
 	
-	//get POST data
+	
+	productId, err := strconv.Atoi(c.PostForm("productId"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "invalid product id",
+		})
+		return
+	}
+
+	// get the product 
+
+	product, err := adapter.productService.Get(productId)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	payement, err := adapter.payementService.Create(product)
+
+	b := adapter.broadcaster
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	b.Submit(Message{
+		UserId: "1",
+		Text: "Payement is created",
+	})
+
+	 c.JSON(http.StatusOK, &Response{
+		Status:  http.StatusOK,
+		Message: "Payement is created",
+		Data: payement,
+	})
+
+}
+
+func (adapter *ginAdapter) GetPayement (c *gin.Context) {
+	
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "invalid id",
+		})
+		return
+	}
+
+	payement, err := adapter.payementService.Get(id)
+
+	b := adapter.broadcaster
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	b.Submit(Message{
+		UserId: "1",
+		Text: "Payement price is " + payement.PricePaid,
+	})
+
+	 c.JSON(http.StatusOK, &Response{
+		Status:  http.StatusOK,
+		Message: "Payement price is " + payement.PricePaid,
+		Data: payement,
+	})
+
+}
+
+func (adapter *ginAdapter) UpdatePayement(c *gin.Context) {
 
 
-	fmt.Println("create payement", c.PostForm("id"))
-
-	id, err := strconv.Atoi(c.PostForm("id"))
+	id, err := strconv.Atoi(c.Param("id"))
 
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
-		fmt.Println(err)
-		return
-	}
-		price := c.PostForm("price")
-
-
-		// get the broadcaster
-		b := adapter.broadcaster
-
-		// save the payement
-		adapter.payementService.Create(id, price);
-
-
-		b.Submit(Message{
-			UserId: "1",
-			Text: "Payement is created",
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "invalid id",
 		})
-
-		response := &Response{
-			Status:  http.StatusOK,
-			Message: "Payement is created",
-			Data: nil,
+		return
 		}
 
-		c.JSON(http.StatusOK, response)
+	var payement payement.Payement
+
+	err = c.ShouldBindJSON(&payement)
+
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "invalid payement",
+		})
+		return
+	}
+
+	payement, err = adapter.payementService.Update(id, payement)
+
+	b := adapter.broadcaster
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	b.Submit(Message{
+		UserId: "1",
+		Text: "Payement is updated",
+	})
 	
+	 c.JSON(http.StatusOK, &Response{
+		Status:  http.StatusOK,
+		Message: "Payement is updated",
+		Data: payement,
+	})
+
+
+	
+}
+
+func (adapter *ginAdapter) DeletePayement(c *gin.Context) {
+
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "invalid id",
+		})
+		return
+	}
+
+	err = adapter.payementService.Delete(id)
+
+	b := adapter.broadcaster
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	b.Submit(Message{
+		UserId: "1",
+		Text: "Payement is deleted",
+	})
+
+	 c.JSON(http.StatusOK, &Response{
+		Status:  http.StatusOK,
+		Message: "Payement is deleted",
+	})
 
 }
+
+
 
 func (adapter *ginAdapter) CreateProduct (c *gin.Context) {
 	
@@ -168,7 +307,7 @@ func (adapter *ginAdapter) CreateProduct (c *gin.Context) {
 
 	b.Submit(Message{
 		UserId: "1",
-		Text: "Product is created",
+		Text: product.Name + " is created",
 	})
 
 	response := &Response{
@@ -211,6 +350,8 @@ func (adapter *ginAdapter) UpdateProduct (c *gin.Context) {
 
 	updatedProduct, err := adapter.productService.Update(id, product)
 
+	b := adapter.broadcaster
+
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, &Response{
@@ -220,6 +361,12 @@ func (adapter *ginAdapter) UpdateProduct (c *gin.Context) {
 		})
 		return
 	}
+
+	b.Submit(Message{
+		UserId: "1",
+		Text: updatedProduct.Name + " is updated to price " + updatedProduct.Price,
+	})
+
 
 	c.JSON(http.StatusOK, &Response{
 		Status:  http.StatusOK,
@@ -246,6 +393,8 @@ func (adapter *ginAdapter) DeleteProduct (c *gin.Context) {
 
 	err = adapter.productService.Delete(id)
 
+	b := adapter.broadcaster
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, &Response{
 			Status:  http.StatusBadRequest,
@@ -255,10 +404,15 @@ func (adapter *ginAdapter) DeleteProduct (c *gin.Context) {
 		return
 	}
 
+	b.Submit(Message{
+		UserId: "1",
+		Text: "Product is deleted",
+	})
+
 	c.JSON(http.StatusOK, &Response{
 		Status:  http.StatusOK,
 		Message: "product deleted",
-		Data: nil,
+		Data: "product deleted",
 	})
 
 }
@@ -279,6 +433,9 @@ func (adapter *ginAdapter) GetProduct (c *gin.Context) {
 
 	product, err := adapter.productService.Get(id)
 
+	b := adapter.broadcaster
+
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, &Response{
 			Status:  http.StatusBadRequest,
@@ -287,6 +444,11 @@ func (adapter *ginAdapter) GetProduct (c *gin.Context) {
 		})
 		return
 	}
+
+	b.Submit(Message{
+		UserId: "1",
+		Text: product.Name + " is found",
+	})
 
 	c.JSON(http.StatusOK, &Response{
 		Status:  http.StatusOK,
