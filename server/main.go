@@ -51,16 +51,18 @@ func main() {
 	ginAdapter := adapter.NewGinAdapter(b, productService, payementService)
 
 	router.GET("/stream", ginAdapter.Stream)
+	
 	router.POST("/createPayement", ginAdapter.CreatePayement)
 	router.GET("/getPayement/:id", ginAdapter.GetPayement)
 	router.PUT("/updatePayement/:id", ginAdapter.UpdatePayement)
 	router.DELETE("/deletePayement/:id", ginAdapter.DeletePayement)
-	
+	router.GET("/getPayements", ginAdapter.GetPayements)
 
 	router.POST("/createProduct", ginAdapter.CreateProduct)
 	router.PUT("/updateProduct/:id", ginAdapter.UpdateProduct)
 	router.DELETE("/deleteProduct/:id", ginAdapter.DeleteProduct)
 	router.GET("/getProduct/:id", ginAdapter.GetProduct)
+	router.GET("/getProducts", ginAdapter.GetProducts)
 
 	router.Run(fmt.Sprintf(":%v", 8084))
 

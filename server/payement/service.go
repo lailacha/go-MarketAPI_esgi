@@ -6,7 +6,6 @@ import (
 
 type Service interface {
     FindAll() ([]Payement, error)
-	FindById(id int) (Payement, error)
     Get(id int) (Payement, error)
     Create(inputProduct product.Product) (Payement, error)
     Update(id int, payement Payement) (Payement, error)
