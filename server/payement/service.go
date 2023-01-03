@@ -71,18 +71,6 @@ func (s *service) FindAll() ([]Payement, error) {
 	return findallpayement, nil
 }
 
-
-func (s *service) FindById(id int) (Payement, error) {
-
-	findpayement, err := s.repo.FindById(id)
-
-	if err != nil {
-		return findpayement, err
-	}
-
-	return findpayement, nil
-}
-
 func (s *service) Delete(id int) error {
     
 	err := s.repo.Delete(id)

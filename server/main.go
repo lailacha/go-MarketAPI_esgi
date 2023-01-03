@@ -52,6 +52,10 @@ func main() {
 
 	router.GET("/stream", ginAdapter.Stream)
 	router.POST("/createPayement", ginAdapter.CreatePayement)
+	router.GET("/getPayement/:id", ginAdapter.GetPayement)
+	router.PUT("/updatePayement/:id", ginAdapter.UpdatePayement)
+	router.DELETE("/deletePayement/:id", ginAdapter.DeletePayement)
+	
 
 	router.POST("/createProduct", ginAdapter.CreateProduct)
 	router.PUT("/updateProduct/:id", ginAdapter.UpdateProduct)
