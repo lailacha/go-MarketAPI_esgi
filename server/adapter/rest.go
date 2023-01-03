@@ -17,11 +17,16 @@ type GinAdapter interface {
 
 	CreatePayement(c *gin.Context)
 	GetPayement(c *gin.Context)
+	UpdatePayement(c *gin.Context)
+	DeletePayement(c *gin.Context)
+	GetPayements(c *gin.Context)
+
 
 	UpdateProduct(c *gin.Context)
 	CreateProduct(c *gin.Context)
 	DeleteProduct(c *gin.Context)
 	GetProduct(c *gin.Context)
+	GetProducts(c *gin.Context)
 }
 
 type ginAdapter struct {
@@ -261,6 +266,60 @@ func (adapter *ginAdapter) DeletePayement(c *gin.Context) {
 	 c.JSON(http.StatusOK, &Response{
 		Status:  http.StatusOK,
 		Message: "Payement is deleted",
+	})
+
+}
+
+func (adapter *ginAdapter) GetPayements (c *gin.Context) {
+
+	payements, err := adapter.payementService.FindAll()
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	b := adapter.broadcaster
+
+	b.Submit(Message{
+		UserId: "1",
+		Text: "Payements are fetched",
+	})
+
+	 c.JSON(http.StatusOK, &Response{
+		Status:  http.StatusOK,
+		Message: "Payements are fetched",
+		Data: payements,
+	})
+
+}
+
+func (adapter *ginAdapter) GetProducts (c *gin.Context) {
+
+	products, err := adapter.productService.FindAll()
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	b := adapter.broadcaster
+
+	b.Submit(Message{
+		UserId: "1",
+		Text: "Products are fetched",
+	})
+
+	 c.JSON(http.StatusOK, &Response{
+		Status:  http.StatusOK,
+		Message: "Products are fetched",
+		Data: products,
 	})
 
 }
