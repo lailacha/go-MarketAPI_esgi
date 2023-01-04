@@ -1,2 +1,2 @@
 # go-MarketAPI_esgi
-Lourd le projet
+API GO permettant la gestion de produit de payement
