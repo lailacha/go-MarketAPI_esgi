@@ -2,14 +2,14 @@ package product
 
 import (
 	"gorm.io/gorm"
-)	
+)
 
 type Repository interface {
 	GetAll() ([]Product, error)
 	GetById(id int) (Product, error)
 	GetByName(name string) (Product, error)
 	Create(product Product) Product
-	Update(id int, product Product) (Product, error)
+	Update(id int, inputProduct InputProduct) (Product, error)
 	Delete(id int) error
 }
 
@@ -23,8 +23,8 @@ func NewProductRepository(db *gorm.DB) *repository {
 
 func (pr *repository) GetAll() ([]Product, error) {
 	var products []Product
-	
-	err:= pr.db.Find(&products).Error
+
+	err := pr.db.Find(&products).Error
 
 	if err != nil {
 		return products, err
@@ -44,7 +44,6 @@ func (pr *repository) GetById(id int) (Product, error) {
 	return product, nil
 }
 
-
 func (pr *repository) GetByName(name string) (Product, error) {
 	var product Product
 	err := pr.db.Where(&Product{Name: name}).First(&product).Error
@@ -56,14 +55,12 @@ func (pr *repository) GetByName(name string) (Product, error) {
 	return product, nil
 }
 
-
 func (pr *repository) Create(product Product) Product {
 	pr.db.Create(&product)
 	return product
 }
 
-func (pr *repository) Update(id int, inputProduct Product) (Product, error) {
-
+func (pr *repository) Update(id int, inputProduct InputProduct) (Product, error) {
 
 	product, err := pr.GetById(id)
 
@@ -71,17 +68,21 @@ func (pr *repository) Update(id int, inputProduct Product) (Product, error) {
 		return Product{}, err
 	}
 
-	product.Name = inputProduct.Name
-	product.Price = inputProduct.Price
+	if inputProduct.Name != "" {
+		product.Name = inputProduct.Name
+	}
+
+	if inputProduct.Price != "" {
+		product.Price = inputProduct.Price
+	}
 
 	pr.db.Save(&product)
 
 	return product, nil
 }
 
-
 func (pr *repository) Delete(id int) error {
-	
+
 	product := Product{Id: id}
 
 	transaction := pr.db.Delete(&product)
@@ -89,7 +90,6 @@ func (pr *repository) Delete(id int) error {
 	if transaction.Error != nil {
 		return transaction.Error
 	}
-
 
 	if transaction.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound

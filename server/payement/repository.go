@@ -1,97 +1,97 @@
 package payement
 
-
 import (
-    "gorm.io/gorm"
+	"gorm.io/gorm"
 )
 
 type Repository interface {
-    FindAll() ([]Payement, error)
-    FindById(id int) (Payement, error)
-    Create(payement Payement) (Payement, error)
-    Update(id int, payement Payement) (Payement, error)
-    Delete(id int) error
+	GetAll() ([]Payement, error)
+	GetById(id int) (Payement, error)
+	Create(payement Payement) (Payement, error)
+	Update(id int, payement InputPayement) (Payement, error)
+	Delete(id int) error
 }
 
 type repository struct {
-    db *gorm.DB
+	db *gorm.DB
 }
 
 func NewPayementRepository(db *gorm.DB) *repository {
-    return &repository{db}
+	return &repository{db}
 }
 
 func (repo *repository) Create(inputPayement Payement) (Payement, error) {
 
-    err := repo.db.Create(&inputPayement).Error
+	err := repo.db.Create(&inputPayement).Error
 
-    if err != nil {
-        return inputPayement, err
-    }
+	if err != nil {
+		return inputPayement, err
+	}
 
-
-    return inputPayement, nil
+	return inputPayement, nil
 }
 
+func (repo *repository) GetById(id int) (Payement, error) {
+	var payement Payement
+	err := repo.db.Where(&Payement{Id: id}).First(&payement).Error
 
-func (repo *repository) FindById(id int) (Payement, error) {
-    var payement Payement
-    err := repo.db.Where(&Payement{Id: id}).First(&payement).Error
+	if err != nil {
+		return Payement{}, err
+	}
 
-    if err != nil {
-        return Payement{}, err
-    }
-
-    return payement, nil
+	return payement, nil
 }
 
-func (repo *repository) FindAll() ([]Payement, error) {
-    var payements []Payement
-    err := repo.db.Find(&payements).Error
+func (repo *repository) GetAll() ([]Payement, error) {
+	var payements []Payement
+	err := repo.db.Find(&payements).Error
 
-    if err != nil {
-        return payements, err
-    }
+	if err != nil {
+		return payements, err
+	}
 
-    return payements, nil
+	return payements, nil
 }
 
-func (repo *repository) Update(id int, inputPayement Payement) (Payement, error) {
+func (repo *repository) Update(id int, inputPayement InputPayement) (Payement, error) {
 
-    
-    payement, err := repo.FindById(id)
+	payement, err := repo.GetById(id)
 
-    if err != nil {
-        return payement, err
-    }
+	if err != nil {
+		return payement, err
+	}
 
-    
-    payement.ProductID = inputPayement.ProductID
-    payement.PricePaid = inputPayement.PricePaid
+	if inputPayement.ProductID != 0 {
+		payement.ProductID = inputPayement.ProductID
+	}
 
-    err = repo.db.Save(&payement).Error
+	if inputPayement.PricePaid != "" {
+		payement.PricePaid = inputPayement.PricePaid
+	}
 
-    if err != nil {
-        return payement, err
-    }
+	err = repo.db.Save(&payement).Error
 
-    return payement, nil
-    
+	if err != nil {
+		return payement, err
+	}
+
+	return payement, nil
+
 }
 
 func (repo *repository) Delete(id int) error {
-    
-    payement := Payement{Id: id}
 
-    transac := repo.db.Delete(&payement)
+	payement := Payement{Id: id}
 
-    if transac.Error != nil {
-        return transac.Error
-    }
+	transac := repo.db.Delete(&payement)
 
-    if transac.RowsAffected == 0 {
-        return gorm.ErrRecordNotFound
-    }
+	if transac.Error != nil {
+		return transac.Error
+	}
 
-    return nil
+	if transac.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }

@@ -7,7 +7,11 @@ require (
 	gorm.io/gorm v1.23.8
 )
 
+require github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
+
 require (
+	github.com/auth0/go-jwt-middleware v1.0.1
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect

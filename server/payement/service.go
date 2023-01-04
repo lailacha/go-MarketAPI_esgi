@@ -1,77 +1,82 @@
 package payement
 
 import (
-    "github.com/lailacha/go-MarketAPI_esgi/server/product"
+	"time"
+
+	"github.com/lailacha/go-MarketAPI_esgi/server/product"
 )
 
 type Service interface {
-    FindAll() ([]Payement, error)
-    Get(id int) (Payement, error)
-    Create(inputProduct product.Product) (Payement, error)
-    Update(id int, payement Payement) (Payement, error)
-    Delete(id int) error
-    // Stream() (Payement, error)
+	GetAll() ([]Payement, error)
+	Get(id int) (Payement, error)
+	Create(product product.Product) (Payement, error)
+	Update(id int, payement InputPayement) (Payement, error)
+	Delete(id int) error
+	// Stream() (Payement, error)
 }
 
 type service struct {
-    repo Repository
+	repo Repository
 }
 
 func NewService(repo Repository) *service {
-    return &service{repo}
+	return &service{repo}
 }
 
-func (s *service) Create(inputProduct product.Product) (Payement, error) {
+func (s *service) Create(product product.Product) (Payement, error) {
 
-    payementObject := Payement{
-        ProductID: inputProduct.Id,
-        PricePaid: inputProduct.Price,
+	payementObject := Payement{
+		ProductID: product.Id,
+		PricePaid: product.Price,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	newPayement, err := s.repo.Create(payementObject)
+
+    if err != nil {
+        return Payement{}, err
     }
-    
-    s.repo.Create(payementObject)
-    
-    
-    return payementObject, nil
+
+	return newPayement, nil
 }
 
 func (s *service) Get(id int) (Payement, error) {
-    
-    payement, err := s.repo.FindById(id)
 
-    if err != nil {
-        return Payement{}, err
-    }
-
-    return payement, nil
-}
-
-
-func (s *service) Update(id int, inputPayement Payement) (Payement, error) {
-
-
-    updatedPayement, err := s.repo.Update(id, inputPayement)
-
-    if err != nil {
-        return Payement{}, err
-    }
-
-    return updatedPayement, nil
-
-}
-
-func (s *service) FindAll() ([]Payement, error) {
-
-	findallpayement, err := s.repo.FindAll()
+	payement, err := s.repo.GetById(id)
 
 	if err != nil {
-		return findallpayement, err
+		return Payement{}, err
 	}
 
-	return findallpayement, nil
+	return payement, nil
+}
+
+func (s *service) Update(id int, inputPayement InputPayement) (Payement, error) {
+
+	updatedPayement, err := s.repo.Update(id, inputPayement)
+
+	if err != nil {
+		return Payement{}, err
+	}
+
+	return updatedPayement, nil
+
+}
+
+func (s *service) GetAll() ([]Payement, error) {
+
+	GetAllpayement, err := s.repo.GetAll()
+
+	if err != nil {
+		return GetAllpayement, err
+	}
+
+	return GetAllpayement, nil
 }
 
 func (s *service) Delete(id int) error {
-    
+
 	err := s.repo.Delete(id)
 
 	if err != nil {
@@ -83,4 +88,4 @@ func (s *service) Delete(id int) error {
 
 // func (s *service) Stream() (Payement, error) {
 //     //return s.repo.Stream()
-// } 
+// }
