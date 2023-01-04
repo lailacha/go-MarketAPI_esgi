@@ -78,7 +78,7 @@ func (adapter *payementHandler) CreatePayement (c *gin.Context) {
 
 	b.Submit(Message{
 		UserId: "1",
-		Text: "Payement is created",
+		Text: "New sale for the product: "+ strconv.Itoa(payement.ProductID) + " at the price of "+strconv.Itoa(payement.PricePaid) + "euros",
 	})
 
 	 c.JSON(http.StatusOK, &Response{
