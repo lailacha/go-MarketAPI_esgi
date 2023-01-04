@@ -4,7 +4,7 @@ import "fmt"
 
 // on définit notre interface
 type Service interface {
-	// GetAll() ([]Product, error)
+	GetAll() ([]Product, error)
 	Get(id int) (Product, error)
 	Create(inputProduct InputProduct) (Product, error)
 	Update(id int, inputProduct InputProduct) (Product, error)

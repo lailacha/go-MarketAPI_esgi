@@ -72,7 +72,7 @@ func (pr *repository) Update(id int, inputProduct InputProduct) (Product, error)
 		product.Name = inputProduct.Name
 	}
 
-	if inputProduct.Price != "" {
+	if inputProduct.Price != 0 {
 		product.Price = inputProduct.Price
 	}
 

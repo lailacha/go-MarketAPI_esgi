@@ -12,7 +12,6 @@ type Service interface {
 	Create(product product.Product) (Payement, error)
 	Update(id int, payement InputPayement) (Payement, error)
 	Delete(id int) error
-	// Stream() (Payement, error)
 }
 
 type service struct {
@@ -85,7 +84,3 @@ func (s *service) Delete(id int) error {
 
 	return nil
 }
-
-// func (s *service) Stream() (Payement, error) {
-//     //return s.repo.Stream()
-// }

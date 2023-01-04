@@ -12,14 +12,10 @@ import (
 	"github.com/lailacha/go-MarketAPI_esgi/server/handler"
 	"github.com/lailacha/go-MarketAPI_esgi/server/payement"
 	"github.com/lailacha/go-MarketAPI_esgi/server/product"
+	
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
-
-type Message struct {
-	UserId string
-	Text   string
-}
 
 func handleCreateToken(c *gin.Context) {
 
@@ -75,38 +71,6 @@ func handleCreateToken(c *gin.Context) {
 
 }
 
-// Stream is the handler for the stream endpoint
-func Stream(c *gin.Context, broadcaster broadcast.Broadcaster) {
-
-	//create a new channel to handle the stream
-	listener := make(chan interface{})
-
-	// get the broadcaster
-
-	broadcaster.Register(listener)
-
-	//close the channel when error message or client is gone
-	defer broadcaster.Unregister(listener)
-
-	clientGone := c.Request.Context().Done()
-
-	c.Stream(func(w io.Writer) bool {
-		select {
-		case <-clientGone:
-			return false
-		case message := <-listener:
-			serviceMsg, ok := message.(Message)
-			if !ok {
-				fmt.Println("not a message")
-				c.SSEvent("message", message)
-				return false
-			}
-			c.SSEvent("message", " "+serviceMsg.UserId+" → "+serviceMsg.Text)
-			return true
-		}
-	})
-
-}
 
 func main() {
 
@@ -131,7 +95,7 @@ func main() {
 	productService := product.NewService(productRepository)
 
 	// get the broadcaster
-	b := broadcast.NewBroadcaster(20)
+	b := broadcast.NewBroadcaster(200)
 
 	payementHandler := handler.NewPayementHandler(b, productService, payementService)
 
@@ -156,9 +120,10 @@ func main() {
 		c.Stream(func(w io.Writer) bool {
 			select {
 			case <-clientGone:
+				fmt.Println("client gone")
 				return false
 			case message := <-listener:
-				serviceMsg, ok := message.(Message)
+				serviceMsg, ok := message.(handler.Message)
 				if !ok {
 					fmt.Println("not a message")
 					c.SSEvent("message", message)
@@ -175,12 +140,13 @@ func main() {
 	router.GET("/getPayement/:id", payementHandler.GetPayement)
 	router.PUT("/updatePayement/:id", payementHandler.UpdatePayement)
 	router.DELETE("/deletePayement/:id", payementHandler.DeletePayement)
+	router.GET("/getPayements", payementHandler.GetPayements)
 
 	router.POST("/createProduct", productHandler.CreateProduct)
 	router.PUT("/updateProduct/:id", productHandler.UpdateProduct)
 	router.DELETE("/deleteProduct/:id", productHandler.DeleteProduct)
 	router.GET("/getProduct/:id", productHandler.GetProduct)
-	//router.GET("/getProducts", productHandler.GetProducts)
+	router.GET("/getProducts", productHandler.GetProducts)
 
 	router.Run(fmt.Sprintf(":%v", 8084))
 

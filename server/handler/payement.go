@@ -15,6 +15,9 @@ import (
 type PayementHandler interface {
 	CreatePayement(c *gin.Context)
 	GetPayement(c *gin.Context)
+	UpdatePayement(c *gin.Context)
+	DeletePayement(c *gin.Context)
+	GetPayements(c *gin.Context)
 }
 
 type payementHandler struct {
@@ -53,7 +56,7 @@ func (adapter *payementHandler) CreatePayement (c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, &Response{
 			Status:  http.StatusBadRequest,
-			Message: "something went wrong",
+			Message: err.Error(),
 		})
 
 		fmt.Println(err.Error())
@@ -67,9 +70,8 @@ func (adapter *payementHandler) CreatePayement (c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, &Response{
 			Status:  http.StatusBadRequest,
-			Message: "something went wrong",
+			Message: err.Error(),
 		})
-		fmt.Println(err.Error())
 
 		return
 	}
@@ -113,12 +115,12 @@ func (adapter *payementHandler) GetPayement (c *gin.Context) {
 
 	b.Submit(Message{
 		UserId: "1",
-		Text: "Payement price is " + payement.PricePaid,
+		Text: "Payement price is " + strconv.Itoa(payement.PricePaid),
 	})
 
 	 c.JSON(http.StatusOK, &Response{
 		Status:  http.StatusOK,
-		Message: "Payement price is " + payement.PricePaid,
+		Message: "Payement price is " + strconv.Itoa(payement.PricePaid),
 		Data: payement,
 	})
 
@@ -210,6 +212,34 @@ func (adapter *payementHandler) DeletePayement(c *gin.Context) {
 	 c.JSON(http.StatusOK, &Response{
 		Status:  http.StatusOK,
 		Message: "Payement is deleted",
+	})
+
+}
+
+
+func (adapter *payementHandler) GetPayements (c *gin.Context) {
+
+	payements, err := adapter.payementService.GetAll()
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	b := adapter.broadcaster
+
+	b.Submit(Message{
+		UserId: "1",
+		Text: "Payements are fetched",
+	})
+
+	 c.JSON(http.StatusOK, &Response{
+		Status:  http.StatusOK,
+		Message: "Payements are fetched",
+		Data: payements,
 	})
 
 }

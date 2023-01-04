@@ -12,8 +12,11 @@ import (
 
 
 type ProductHandler interface {
-	CreatePayement(c *gin.Context)
-	GetPayement(c *gin.Context)
+	CreateProduct(c *gin.Context)
+	GetProduct(c *gin.Context)
+	UpdateProduct(c *gin.Context)
+	DeleteProduct(c *gin.Context)
+	GetProducts(c *gin.Context)
 }
 
 type productHandler struct {
@@ -125,7 +128,7 @@ func (adapter *productHandler) UpdateProduct (c *gin.Context) {
 
 	b.Submit(Message{
 		UserId: "1",
-		Text: updatedProduct.Name + " is updated to price " + updatedProduct.Price,
+		Text: updatedProduct.Name + " is updated to price " + strconv.Itoa(updatedProduct.Price),
 	})
 
 
@@ -215,6 +218,34 @@ func (adapter *productHandler) GetProduct (c *gin.Context) {
 		Status:  http.StatusOK,
 		Message: "product found",
 		Data: product,
+	})
+
+}
+
+
+func (adapter *productHandler) GetProducts (c *gin.Context) {
+
+	products, err := adapter.productService.GetAll()
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, &Response{
+			Status:  http.StatusBadRequest,
+			Message: "something went wrong",
+		})
+		return
+	}
+
+	b := adapter.broadcaster
+
+	b.Submit(Message{
+		UserId: "1",
+		Text: "Products are fetched",
+	})
+
+	 c.JSON(http.StatusOK, &Response{
+		Status:  http.StatusOK,
+		Message: "Products are fetched",
+		Data: products,
 	})
 
 }
