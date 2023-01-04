@@ -136,17 +136,17 @@ func main() {
 
 	})
 
-	router.POST("/createPayement", payementHandler.CreatePayement)
-	router.GET("/getPayement/:id", payementHandler.GetPayement)
-	router.PUT("/updatePayement/:id", payementHandler.UpdatePayement)
-	router.DELETE("/deletePayement/:id", payementHandler.DeletePayement)
-	router.GET("/getPayements", payementHandler.GetPayements)
+	router.POST("/payement", payementHandler.CreatePayement)
+	router.GET("/payement/:id", payementHandler.GetPayement)
+	router.PUT("/payement/:id", payementHandler.UpdatePayement)
+	router.DELETE("/payement/:id", payementHandler.DeletePayement)
+	router.GET("/payement", payementHandler.GetPayements)
 
-	router.POST("/createProduct", productHandler.CreateProduct)
-	router.PUT("/updateProduct/:id", productHandler.UpdateProduct)
-	router.DELETE("/deleteProduct/:id", productHandler.DeleteProduct)
-	router.GET("/getProduct/:id", productHandler.GetProduct)
-	router.GET("/getProducts", productHandler.GetProducts)
+	router.POST("/product", productHandler.CreateProduct)
+	router.PUT("/product/:id", productHandler.UpdateProduct)
+	router.DELETE("/product/:id", productHandler.DeleteProduct)
+	router.GET("/product/:id", productHandler.GetProduct)
+	router.GET("/product", productHandler.GetProducts)
 
 	router.Run(fmt.Sprintf(":%v", 8084))
 
