@@ -1,0 +1,397 @@
+info:
+    version: 1.0.0
+  title: MarketAPI
+  description: Une description de mon API
+  termsOfService: http://monapi.com/terms/
+  contact:
+    name: Mon nom
+    email: monadresse@email.com
+    url: http://monapi.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+host: api.monapi.com
+basePath: /
+schemes:
+  - http
+paths: 
+  /createProduct:
+    post:
+      tags:
+        - Product
+      summary: Créer un produit
+      description: Créer un produit
+      operationId: createProduct
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Produit à créer
+          required: true
+          schema:
+            $ref: '#/definitions/Product'
+      responses:
+        '200':
+          description: Produit créé
+          schema:
+            $ref: '#/definitions/Product'
+        '400':
+          description: Erreur de validation
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+  /getProduct/{id}:
+    get:
+      tags:
+        - Product
+      summary: Récupérer un produit
+      description: Récupérer un produit
+      operationId: getProduct
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID du produit
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Produit récupéré
+          schema:
+            $ref: '#/definitions/Product'
+        '404':
+          description: Produit non trouvé
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+  /updateProduct/{id}:
+    put:
+      tags:
+        - Product
+      summary: Mettre à jour un produit
+      description: Mettre à jour un produit
+      operationId: updateProduct
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID du produit
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Produit à mettre à jour
+          required: true
+          schema:
+            $ref: '#/definitions/Product'
+      responses:
+        '200':
+          description: Produit mis à jour
+          schema:
+            $ref: '#/definitions/Product'
+        '400':
+          description: Erreur de validation
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Produit non trouvé
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+  /deleteProduct/{id}:
+    delete:
+      tags:
+        - Product
+      summary: Supprimer un produit
+      description: Supprimer un produit
+      operationId: deleteProduct
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID du produit
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Produit supprimé
+          schema:
+            $ref: '#/definitions/Product'
+        '404':
+          description: Produit non trouvé
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+  /getProducts:
+    get:
+      tags:
+        - Product
+      summary: Récupérer tous les produits
+      description: Récupérer tous les produits
+      operationId: getProducts
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Produits récupérés
+          schema:
+            $ref: '#/definitions/Products'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+
+  /createPayement:
+    post:
+      tags:
+        - Payement
+      summary: Créer un payement
+      description: Créer un payement
+      operationId: createPayement
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Payement à créer
+          required: true
+          schema:
+            $ref: '#/definitions/Payement'
+      responses:
+        '200':
+          description: Payement créé
+          schema:
+            $ref: '#/definitions/Payement'
+        '400':
+          description: Erreur de validation
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+  /getPayement/{id}:
+    get:
+      tags:
+        - Payement
+      summary: Récupérer un payement
+      description: Récupérer un payement
+      operationId: getPayement
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID du payement
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Payement récupéré
+          schema:
+            $ref: '#/definitions/Payement'
+        '404':
+          description: Payement non trouvé
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+  /updatePayement/{id}:
+    put:
+      tags:
+        - Payement
+      summary: Mettre à jour un payement
+      description: Mettre à jour un payement
+      operationId: updatePayement
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID du payement
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Payement à mettre à jour
+          required: true
+          schema:
+            $ref: '#/definitions/Payement'
+      responses:
+        '200':
+          description: Payement mis à jour
+          schema:
+            $ref: '#/definitions/Payement'
+        '400':
+          description: Erreur de validation
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Payement non trouvé
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+  /deletePayement/{id}:
+    delete:
+      tags:
+        - Payement
+      summary: Supprimer un payement
+      description: Supprimer un payement
+      operationId: deletePayement
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID du payement
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Payement supprimé
+          schema:
+            $ref: '#/definitions/Payement'
+        '404':
+          description: Payement non trouvé
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+  /getPayement/{id}:
+    get:
+      tags:
+        - Payement
+      summary: Récupérer un payement
+      description: Récupérer un payement
+      operationId: getPayement
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID du payement
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Payement récupéré
+          schema:
+            $ref: '#/definitions/Payement'
+        '404':
+          description: Payement non trouvé
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+  /getPayements:
+    get:
+      tags:
+        - Payement
+      summary: Récupérer tous les payements
+      description: Récupérer tous les payements
+      operationId: getPayements
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Payements récupérés
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Payement'
+        '500':
+          description: Erreur serveur
+          schema:
+            $ref: '#/definitions/Error'
+
+
+definitions:
+  Product:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: ID du produit
+      name:
+        type: string
+        description: Nom du produit
+      price:
+        type: string
+        description: Prix du produit
+      create_at:
+        type: string
+        description: Date de création du produit
+      update_at:
+        type: string
+        description: Date de mise à jour du produit
+  Error:
+    type: object
+    properties:
+      code:
+        type: number
+        description: Code d'erreur
+      message:
+        type: string
+        description: Message d'erreur
+
+  Payement:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: ID du payement
+      product_id:
+        type: integer
+        description: Montant du payement
+        price_paid: string
+        description: Prix payé
+      create_at:
+        type: string
+        description: Date de création du payement
+      update_at:
+        type: string
+        description: Date de mise à jour du payement
+  Error:
+    type: object
+    properties:
+      code:
+        type: number
+        description: Code d'erreur
+      message:
+        type: string
+        description: Message d'erreur
+
+swagger: "2.0"
